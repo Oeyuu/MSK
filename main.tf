@@ -12,7 +12,7 @@ resource "aws_cloudwatch_log_group" "msk" {
 }
 
 resource "aws_msk_cluster" "mskcluster" {
-  cluster_name           = "mskcluster"
+  cluster_name           = var.cluster_name
   kafka_version          = "3.2.0"
   number_of_broker_nodes = 3
 
@@ -25,11 +25,11 @@ resource "aws_msk_cluster" "mskcluster" {
         volume_size = 10
       }
     }
-    # connectivity_info {
-    #   public_access {
-    #     type = var.public_access == true ? "SERVICE_PROVIDED_EIPS" : "DISABLED"
-    #   }
-    # }
+    connectivity_info {
+      public_access {
+        type = "SERVICE_PROVIDED_EIPS"
+      }
+    }
   }
 
   encryption_info {
@@ -71,8 +71,9 @@ resource "aws_msk_cluster" "mskcluster" {
 }
 
 resource "aws_msk_configuration" "msk" {
-  kafka_versions    = ["3.2.0"]
-  name              = "msk-config"
+  kafka_versions = ["3.2.0"]
+  name           = "msk-config"
+  #hier acl false setzen wenn root acls vorhanden
   server_properties = <<PROPERTIES
   allow.everyone.if.no.acl.found=false
   auto.create.topics.enable=false

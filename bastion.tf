@@ -1,4 +1,5 @@
 resource "aws_instance" "bastion-host" {
+  depends_on = [aws_msk_cluster.mskcluster]
   ami                    = "ami-0749e2c902c836c08"
   instance_type          = "t2.small"
   subnet_id              = aws_subnet.public[0].id

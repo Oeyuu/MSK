@@ -63,6 +63,12 @@ resource "aws_subnet" "public" {
 
 resource "aws_security_group" "sg" {
   vpc_id = aws_vpc.vpc.id
+  
+  tags = {
+    Name = "msk-sg"
+    Application = "msk"
+    ClusterName = var.cluster_name
+  }
 }
 
 resource "aws_security_group_rule" "vpc_in" {
