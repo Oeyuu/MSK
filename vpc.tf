@@ -25,10 +25,25 @@ resource "aws_route_table" "public_route" {
   }
 }
 
+resource "aws_route_table" "private_route" {
+  vpc_id = aws_vpc.vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.nat.id
+  }
+}
+
 resource "aws_route_table_association" "public" {
   count          = 3
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public_route.id
+}
+
+resource "aws_route_table_association" "private" {
+  count          = 3
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private_route.id
 }
 
 resource "aws_eip" "nat_eip" {
@@ -58,6 +73,19 @@ resource "aws_subnet" "public" {
 
   tags = {
     Name = "msk-${data.aws_availability_zones.azs.names[count.index]}-public-subnet"
+    tier = "public"
+  }
+}
+
+resource "aws_subnet" "private" {
+  count                   = 3
+  availability_zone       = data.aws_availability_zones.azs.names[(count.index)]
+  cidr_block              = "10.204.${count.index + 4}.0/26"
+  vpc_id                  = aws_vpc.vpc.id
+
+  tags = {
+    Name = "msk-${data.aws_availability_zones.azs.names[count.index]}-private-subnet"
+    tier = "private"
   }
 }
 
@@ -96,4 +124,10 @@ resource "aws_security_group_rule" "all_out" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.sg.id
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_vpc.vpc.id
+  service_name = "com.amazonaws.eu-central-1.s3"
+  route_table_ids = [aws_route_table.private_route.id]
 }

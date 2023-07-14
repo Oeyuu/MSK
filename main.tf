@@ -31,6 +31,7 @@ resource "aws_msk_cluster" "mskcluster" {
       }
     }
   }
+ #SERVICE_PROVIDED_EIPS
 
   encryption_info {
     encryption_at_rest_kms_key_arn = aws_kms_key.msk.arn
@@ -149,12 +150,6 @@ resource "null_resource" "aws_msk_scram_secret_disassociation" {
 
   provisioner "local-exec" {
     when    = destroy
-    command = "aws kafka batch-disassociate-scram-secret --cluster-arn ${self.triggers.cluster-arn} --secret-arn-list ${self.triggers.secret-arn-list}"
+    command = "aws kafka batch-disassociate-scram-secret --region eu-central-1 --cluster-arn ${self.triggers.cluster-arn} --secret-arn-list ${self.triggers.secret-arn-list}"
   }
 }
-
-
-
-
-
-
