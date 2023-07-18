@@ -4,7 +4,6 @@ provider "aws" {
 
 resource "aws_kms_key" "msk" {
   description = "msk"
-
 }
 
 resource "aws_cloudwatch_log_group" "msk" {
@@ -138,7 +137,7 @@ resource "null_resource" "aws_msk_scram_secret_association" {
 
   provisioner "local-exec" {
     when    = create
-    command = "aws kafka batch-associate-scram-secret --cluster-arn ${aws_msk_cluster.mskcluster.arn} --secret-arn-list ${aws_secretsmanager_secret.super_user.arn}"
+    command = "aws kafka batch-associate-scram-secret --region eu-central-1 --cluster-arn ${aws_msk_cluster.mskcluster.arn} --secret-arn-list ${aws_secretsmanager_secret.super_user.arn}"
   }
 }
 
